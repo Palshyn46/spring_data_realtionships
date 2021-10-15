@@ -1,0 +1,14 @@
+package com.example.spring_data_relationships.service;
+
+import com.example.spring_data_relationships.dto.UserDto;
+
+import java.util.Optional;
+
+public interface UserService {
+
+    UserDto create(UserDto user);
+
+    UserDto get(Long id);
+
+    UserDto update(UserDto user, Long id);
+}
