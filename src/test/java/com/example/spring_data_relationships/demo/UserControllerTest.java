@@ -3,18 +3,24 @@ package com.example.spring_data_relationships.demo;
 
 import com.example.spring_data_relationships.dto.UserDto;
 import com.example.spring_data_relationships.service.UserService;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -32,6 +38,11 @@ public class UserControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @BeforeEach
+    public void init() {
+        objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
+    }
 
 
     @Test
@@ -61,14 +72,30 @@ public class UserControllerTest {
     public void shouldReturn201AndUserWithIdWhenCreateUser() throws Exception {
         String expectedName = "firstName";
         String expectedEmail = "email@email.com";
+        Long expectedId = 1L;
         UserDto testUser = UserDto.builder().name(expectedName).email(expectedEmail).build();
+
+        when(userService.create(any(UserDto.class)))
+                .thenReturn(
+                        UserDto.builder()
+                                .id(expectedId)
+                                .name(expectedName)
+                                .email(expectedEmail).build()
+                );
+
+        when(userService.create(any(UserDto.class))).thenAnswer(I->{
+            testUser.setId(1L);
+            return testUser;
+        });
+
         MvcResult result = this.mockMvc.perform(post("/user")
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(testUser)))
                 .andExpect(status().isCreated())
                 .andReturn();
         String content = result.getResponse().getContentAsString();
         UserDto actualUser = objectMapper.readValue(content, UserDto.class);
-        assertEquals(actualUser.getId(), 1);
+        assertEquals(expectedId, actualUser.getId());
         assertEquals(expectedName, actualUser.getName());
         assertEquals(expectedEmail, actualUser.getEmail());
     }
@@ -79,7 +106,11 @@ public class UserControllerTest {
         String expectedName = "firstName";
         String expectedEmail = "email@email.com";
         UserDto testUser = UserDto.builder().id(expectedId).name(expectedName).email(expectedEmail).build();
+
+        when(userService.update(any(UserDto.class), eq(expectedId))).thenReturn(UserDto.builder().id(expectedId).name(expectedName).email(expectedEmail).build());
+
         MvcResult result = this.mockMvc.perform(put("/user/1")
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(testUser)))
                 .andExpect(status().isOk())
                 .andReturn();
