@@ -1,10 +1,14 @@
 package com.example.spring_data_relationships.demo;
 
 
+import com.example.spring_data_relationships.controller.RestExceptionHandler;
 import com.example.spring_data_relationships.dto.UserDto;
+import com.example.spring_data_relationships.exceptions.BadRequestException;
+import com.example.spring_data_relationships.exceptions.MyEntityNotFoundException;
 import com.example.spring_data_relationships.service.UserService;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,20 +22,25 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Slf4j
 public class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private RestExceptionHandler restExceptionHandler;
 
     @MockBean
     private UserService userService;
@@ -57,15 +66,15 @@ public class UserControllerTest {
         String expectedEmail = "email@email.com";
         UserDto testUser = UserDto.builder().id(expectedId).name(expectedName).email(expectedEmail).build();
 
-        when(userService.get(eq(expectedId))).thenReturn(testUser);
+        when(userService.get(eq(expectedId))).thenReturn(Optional.of(testUser));
 
         MvcResult result = this.mockMvc.perform(get("/user/{id}", expectedId)).andExpect(status().isOk())
                 .andReturn();
         String content = result.getResponse().getContentAsString();
         UserDto expectedUser = objectMapper.readValue(content, UserDto.class);
-        assertEquals( expectedId, expectedUser.getId());
-        assertEquals( expectedName, expectedUser.getName());
-        assertEquals(expectedEmail, expectedUser.getEmail() );
+        assertEquals(expectedId, expectedUser.getId());
+        assertEquals(expectedName, expectedUser.getName());
+        assertEquals(expectedEmail, expectedUser.getEmail());
     }
 
     @Test
@@ -82,11 +91,6 @@ public class UserControllerTest {
                                 .name(expectedName)
                                 .email(expectedEmail).build()
                 );
-
-        when(userService.create(any(UserDto.class))).thenAnswer(I->{
-            testUser.setId(1L);
-            return testUser;
-        });
 
         MvcResult result = this.mockMvc.perform(post("/user")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -107,7 +111,13 @@ public class UserControllerTest {
         String expectedEmail = "email@email.com";
         UserDto testUser = UserDto.builder().id(expectedId).name(expectedName).email(expectedEmail).build();
 
-        when(userService.update(any(UserDto.class), eq(expectedId))).thenReturn(UserDto.builder().id(expectedId).name(expectedName).email(expectedEmail).build());
+        when(userService.update(any(UserDto.class), eq(expectedId)))
+                .thenReturn(Optional.of(
+                        UserDto.builder()
+                                .id(expectedId)
+                                .name(expectedName)
+                                .email(expectedEmail).build())
+                );
 
         MvcResult result = this.mockMvc.perform(put("/user/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -128,31 +138,48 @@ public class UserControllerTest {
         String expectedEmail = "email@email.com";
         UserDto testUser = UserDto.builder().id(expectedId).name(expectedName).email(expectedEmail).build();
         this.mockMvc.perform(put("/user/1")
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(testUser)))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     public void shouldReturn404IfUserNotExistRemove() throws Exception {
+        Long expectedId = 1L;
+        doThrow(MyEntityNotFoundException.class).when(userService).delete(expectedId);
         this.mockMvc.perform(delete("/user/1"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     public void shouldReturn204IfUserExistAndRemove() throws Exception {
-        this.mockMvc.perform(delete("/user/1"))
+        Long expectedId = 1L;
+        this.mockMvc.perform(delete("/user/{id}", expectedId))
                 .andExpect(status().isNoContent());
+        verify(userService, times(1)).delete(expectedId);
     }
 
     @Test
     public void shouldReturn400AndCustomMessageIfUnexpectedErrorDuringGet() throws Exception {
+        Long expectedId = 1L;
         String errorMessage = "Something went wrong";
-        MvcResult result = this.mockMvc.perform(get("/user/1"))
+
+        doThrow(BadRequestException.class).when(userService).get(expectedId);
+
+
+        MvcResult result = this.mockMvc.perform(get("/user/{id}", expectedId)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
-        String content = result.getResponse().getContentAsString();
-        Map response = objectMapper.readValue(content, Map.class);
-        assertEquals(errorMessage, response.get("message"));
+
+        log.info(String.valueOf(result.getResponse().getStatus()));
+        //log.info(result.getResponse().get);
+//        verify(restExceptionHandler, times(2))
+//                .handleBadRequestException(new BadRequestException(1L));
+
+//        String content = result.getResponse().getContentAsString();
+//        Map response = objectMapper.readValue(content, Map.class);
+        //assertEquals(errorMessage, response.get("message"));
     }
 
     @Test

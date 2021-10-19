@@ -8,7 +8,11 @@ public interface UserService {
 
     UserDto create(UserDto user);
 
-    UserDto get(Long id);
+    Optional<UserDto> get(Long id);
 
-    UserDto update(UserDto user, Long id);
+    Optional<UserDto> update(UserDto user, Long id);
+
+    void delete(Long id);
+
+    boolean existsById(Long id);
 }
