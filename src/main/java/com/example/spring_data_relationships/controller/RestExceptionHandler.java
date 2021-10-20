@@ -19,10 +19,10 @@ public class RestExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler({BadRequestException.class})
-    public ResponseEntity<Object> handleBadRequestException(BadRequestException e) {
-        log.info("in method");
+    @ExceptionHandler({RuntimeException.class})
+    public ResponseEntity<Object> handleRuntimeException(RuntimeException e) {
         ApiError apiError = new ApiError("Something went wrong", e.getMessage());
-        return new ResponseEntity<>("apiError", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
+
 }

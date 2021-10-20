@@ -1,18 +1,14 @@
 package com.example.spring_data_relationships.demo;
 
-
-import com.example.spring_data_relationships.controller.RestExceptionHandler;
 import com.example.spring_data_relationships.dto.UserDto;
-import com.example.spring_data_relationships.exceptions.BadRequestException;
 import com.example.spring_data_relationships.exceptions.MyEntityNotFoundException;
 import com.example.spring_data_relationships.service.UserService;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,9 +36,6 @@ public class UserControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private RestExceptionHandler restExceptionHandler;
-
-    @MockBean
     private UserService userService;
 
     @Autowired
@@ -53,14 +46,17 @@ public class UserControllerTest {
         objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
     }
 
-
     @Test
-    public void shouldReturn404IfUserAbsent() throws Exception {
-        this.mockMvc.perform(get("/user/1")).andExpect(status().isNotFound());
+    @SneakyThrows
+    public void shouldReturn404IfUserAbsent() {
+        this.mockMvc.perform(get("/user/1"))
+                .andExpect(status()
+                        .isNotFound());
     }
 
     @Test
-    public void shouldReturn200IfUserExist() throws Exception {
+    @SneakyThrows
+    public void shouldReturn200IfUserExist() {
         Long expectedId = 1L;
         String expectedName = "firstName";
         String expectedEmail = "email@email.com";
@@ -78,7 +74,8 @@ public class UserControllerTest {
     }
 
     @Test
-    public void shouldReturn201AndUserWithIdWhenCreateUser() throws Exception {
+    @SneakyThrows
+    public void shouldReturn201AndUserWithIdWhenCreateUser() {
         String expectedName = "firstName";
         String expectedEmail = "email@email.com";
         Long expectedId = 1L;
@@ -105,7 +102,8 @@ public class UserControllerTest {
     }
 
     @Test
-    public void shouldReturn201AndUpdatedUserWhenUpdate() throws Exception {
+    @SneakyThrows
+    public void shouldReturn201AndUpdatedUserWhenUpdate() {
         Long expectedId = 1L;
         String expectedName = "firstName";
         String expectedEmail = "email@email.com";
@@ -132,7 +130,8 @@ public class UserControllerTest {
     }
 
     @Test
-    public void shouldReturn404IfUserNotExistWhenUpdate() throws Exception {
+    @SneakyThrows
+    public void shouldReturn404IfUserNotExistWhenUpdate() {
         Long expectedId = 1L;
         String expectedName = "firstName";
         String expectedEmail = "email@email.com";
@@ -144,7 +143,8 @@ public class UserControllerTest {
     }
 
     @Test
-    public void shouldReturn404IfUserNotExistRemove() throws Exception {
+    @SneakyThrows
+    public void shouldReturn404IfUserNotExistRemove() {
         Long expectedId = 1L;
         doThrow(MyEntityNotFoundException.class).when(userService).delete(expectedId);
         this.mockMvc.perform(delete("/user/1"))
@@ -152,7 +152,8 @@ public class UserControllerTest {
     }
 
     @Test
-    public void shouldReturn204IfUserExistAndRemove() throws Exception {
+    @SneakyThrows
+    public void shouldReturn204IfUserExistAndRemove() {
         Long expectedId = 1L;
         this.mockMvc.perform(delete("/user/{id}", expectedId))
                 .andExpect(status().isNoContent());
@@ -160,32 +161,34 @@ public class UserControllerTest {
     }
 
     @Test
-    public void shouldReturn400AndCustomMessageIfUnexpectedErrorDuringGet() throws Exception {
+    @SneakyThrows
+    public void shouldReturn400AndCustomMessageIfUnexpectedErrorDuringGet() {
         Long expectedId = 1L;
         String errorMessage = "Something went wrong";
 
-        doThrow(BadRequestException.class).when(userService).get(expectedId);
-
+        doThrow(RuntimeException.class).when(userService).get(expectedId);
 
         MvcResult result = this.mockMvc.perform(get("/user/{id}", expectedId)
-                        .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
-        log.info(String.valueOf(result.getResponse().getStatus()));
-        //log.info(result.getResponse().get);
-//        verify(restExceptionHandler, times(2))
-//                .handleBadRequestException(new BadRequestException(1L));
-
-//        String content = result.getResponse().getContentAsString();
-//        Map response = objectMapper.readValue(content, Map.class);
-        //assertEquals(errorMessage, response.get("message"));
+        String content = result.getResponse().getContentAsString();
+        Map response = objectMapper.readValue(content, Map.class);
+        assertEquals(errorMessage, response.get("message"));
     }
 
     @Test
-    public void shouldReturn400AndCustomMessageIfUnexpectedErrorDuringPost() throws Exception {
+    @SneakyThrows
+    public void shouldReturn400AndCustomMessageIfUnexpectedErrorDuringPost() {
         String errorMessage = "Something went wrong";
-        MvcResult result = this.mockMvc.perform(post("/user").content("{}"))
+        UserDto testUser = UserDto.builder().name("name").email("email@email.com").build();
+
+        doThrow(RuntimeException.class).when(userService).create(any(UserDto.class));
+
+        MvcResult result = this.mockMvc.perform(post("/user")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testUser)))
                 .andExpect(status().isBadRequest())
                 .andReturn();
         String content = result.getResponse().getContentAsString();
@@ -194,9 +197,17 @@ public class UserControllerTest {
     }
 
     @Test
-    public void shouldReturn400AndCustomMessageIfUnexpectedErrorDuringPut() throws Exception {
+    @SneakyThrows
+    public void shouldReturn400AndCustomMessageIfUnexpectedErrorDuringPut() {
         String errorMessage = "Something went wrong";
-        MvcResult result = this.mockMvc.perform(put("/user/1").content("{}"))
+        Long expectedId = 1L;
+        UserDto testUser = UserDto.builder().name("name").email("email@email.com").build();
+
+        doThrow(RuntimeException.class).when(userService).update(any(UserDto.class), eq(expectedId));
+
+        MvcResult result = this.mockMvc.perform(put("/user/{id}", expectedId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testUser)))
                 .andExpect(status().isBadRequest())
                 .andReturn();
         String content = result.getResponse().getContentAsString();
@@ -205,9 +216,14 @@ public class UserControllerTest {
     }
 
     @Test
-    public void shouldReturn400AndCustomMessageIfUnexpectedErrorDuringDelete() throws Exception {
+    @SneakyThrows
+    public void shouldReturn400AndCustomMessageIfUnexpectedErrorDuringDelete() {
         String errorMessage = "Something went wrong";
-        MvcResult result = this.mockMvc.perform(delete("/user/1"))
+        Long expectedId = 1L;
+
+        doThrow(RuntimeException.class).when(userService).delete(expectedId);
+
+        MvcResult result = this.mockMvc.perform(delete("/user/{id}", expectedId))
                 .andExpect(status().isBadRequest())
                 .andReturn();
         String content = result.getResponse().getContentAsString();
