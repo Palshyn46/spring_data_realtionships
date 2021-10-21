@@ -1,6 +1,5 @@
 package com.example.spring_data_relationships.controller;
 
-import com.example.spring_data_relationships.dao.UserDao;
 import com.example.spring_data_relationships.dto.UserDto;
 import com.example.spring_data_relationships.exceptions.MyEntityNotFoundException;
 import com.example.spring_data_relationships.service.UserService;
@@ -8,8 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
@@ -32,7 +29,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     public UserDto update(@RequestBody UserDto user, @PathVariable Long id) {
         return userService.update(user, id).orElseThrow(() -> new MyEntityNotFoundException(id));
     }

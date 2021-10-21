@@ -5,10 +5,10 @@ import com.example.spring_data_relationships.exceptions.MyEntityNotFoundExceptio
 import com.example.spring_data_relationships.service.DepartmentService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/department")
@@ -16,11 +16,28 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class DepartmentController {
 
-    DepartmentService departmentService;
+    private DepartmentService departmentService;
 
     @GetMapping("/{id}")
     public DepartmentDto get(@PathVariable Long id) {
         return departmentService.get(id).orElseThrow(() -> new MyEntityNotFoundException(id));
     }
 
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public DepartmentDto create(@RequestBody DepartmentDto department) {
+        return departmentService.create(department);
+    }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public DepartmentDto update(@RequestBody DepartmentDto department, @PathVariable Long id) {
+        return departmentService.update(department, id).orElseThrow(() -> new MyEntityNotFoundException(id));
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        departmentService.delete(id);
+    }
 }

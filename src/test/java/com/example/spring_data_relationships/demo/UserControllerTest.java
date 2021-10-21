@@ -2,6 +2,7 @@ package com.example.spring_data_relationships.demo;
 
 import com.example.spring_data_relationships.dto.UserDto;
 import com.example.spring_data_relationships.exceptions.MyEntityNotFoundException;
+import com.example.spring_data_relationships.service.DepartmentService;
 import com.example.spring_data_relationships.service.UserService;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,6 +38,8 @@ public class UserControllerTest {
 
     @MockBean
     private UserService userService;
+    @MockBean
+    private DepartmentService departmentService; //?
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -120,7 +123,7 @@ public class UserControllerTest {
         MvcResult result = this.mockMvc.perform(put("/user/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(testUser)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn();
         String content = result.getResponse().getContentAsString();
         UserDto actualUser = objectMapper.readValue(content, UserDto.class);
