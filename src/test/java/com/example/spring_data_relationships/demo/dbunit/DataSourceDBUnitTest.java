@@ -1,9 +1,8 @@
 package com.example.spring_data_relationships.demo.dbunit;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dbunit.Assertion;
 import org.dbunit.DataSourceBasedDBTestCase;
-import org.dbunit.assertion.DiffCollectingFailureHandler;
-import org.dbunit.assertion.Difference;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
@@ -12,11 +11,8 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.platform.commons.logging.Logger;
-import org.junit.platform.commons.logging.LoggerFactory;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.postgresql.jdbc3.Jdbc3PoolingDataSource;
 
 import javax.sql.DataSource;
 import java.io.InputStream;
@@ -24,22 +20,17 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-//import static com.baeldung.dbunit.ConnectionSettings.JDBC_URL;
-//import static com.baeldung.dbunit.ConnectionSettings.PASSWORD;
-//import static com.baeldung.dbunit.ConnectionSettings.USER;
-import static java.util.stream.Collectors.joining;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.dbunit.Assertion.assertEqualsIgnoreCols;
 
 @RunWith(JUnit4.class)
+@Slf4j
 public class DataSourceDBUnitTest extends DataSourceBasedDBTestCase {
-
-    private static final Logger logger = LoggerFactory.getLogger(DataSourceDBUnitTest.class);
 
     private Connection connection;
 
     @Override
-    protected DataSource getDataSource() {
+    public DataSource getDataSource() {
 
         JdbcDataSource dataSource = new JdbcDataSource();
         dataSource.setURL("jdbc:h2:mem:default;DB_CLOSE_DELAY=-1;init=runscript from 'classpath:dbunit/schema.sql'");
@@ -63,19 +54,19 @@ public class DataSourceDBUnitTest extends DataSourceBasedDBTestCase {
     }
 
     @Override
-    protected IDataSet getDataSet() throws Exception {
+    public IDataSet getDataSet() throws Exception {
         try (InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream("dbunit/data.xml")) {
             return new FlatXmlDataSetBuilder().build(resourceAsStream);
         }
     }
 
     @Override
-    protected DatabaseOperation getSetUpOperation() {
+    public DatabaseOperation getSetUpOperation() {
         return DatabaseOperation.REFRESH;
     }
 
     @Override
-    protected DatabaseOperation getTearDownOperation() {
+    public DatabaseOperation getTearDownOperation() {
         return DatabaseOperation.DELETE_ALL;
     }
 
@@ -91,35 +82,27 @@ public class DataSourceDBUnitTest extends DataSourceBasedDBTestCase {
     }
 
     @Test
-    public void givenDataSet_whenSelect_thenFirstTitleIsGreyTShirt() throws SQLException {
-        ResultSet rs = connection.createStatement().executeQuery("select * from ITEMS where id = 1");
+    public void userTableGivenDataSet_whenSelect_thenFirstNameIsName7() throws SQLException {
+        ResultSet rs = connection.createStatement().executeQuery("select * from user_table where id = 7");
 
         assertThat(rs.next()).isTrue();
-        assertThat(rs.getString("title")).isEqualTo("Grey T-Shirt");
+        assertThat(rs.getString("name")).isEqualTo("name7");
+        assertThat(rs.getString("email")).isEqualTo("email7");
     }
 
     @Test
-    public void givenDataSetEmptySchema_whenDataSetCreated_thenTablesAreEqual() throws Exception {
-        IDataSet expectedDataSet = getDataSet();
-        ITable expectedTable = expectedDataSet.getTable("CLIENTS");
-        IDataSet databaseDataSet = getConnection().createDataSet();
-        ITable actualTable = databaseDataSet.getTable("CLIENTS");
-        Assertion.assertEquals(expectedTable, actualTable);
-    }
-
-    @Test
-    public void givenDataSet_whenInsert_thenTableHasNewClient() throws Exception {
+    public void userTableGivenDataSet_whenInsert_thenTableHasNewUser() throws Exception {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("dbunit/expected-user.xml")) {
             // given
             IDataSet expectedDataSet = new FlatXmlDataSetBuilder().build(is);
-            ITable expectedTable = expectedDataSet.getTable("CLIENTS");
+            ITable expectedTable = expectedDataSet.getTable("user_table");
             Connection conn = getDataSource().getConnection();
 
             // when
             conn.createStatement()
-                    .executeUpdate("INSERT INTO CLIENTS (first_name, last_name) VALUES ('John', 'Jansen')");
+                    .executeUpdate("INSERT INTO user_table (name, email) VALUES ('name12312', 'email3213123')");
             ITable actualData = getConnection()
-                    .createQueryTable("result_name", "SELECT * FROM CLIENTS WHERE last_name='Jansen'");
+                    .createQueryTable("result_name", "SELECT * FROM user_table WHERE name='name7'");
 
             // then
             assertEqualsIgnoreCols(expectedTable, actualData, new String[]{"id"});
@@ -127,66 +110,67 @@ public class DataSourceDBUnitTest extends DataSourceBasedDBTestCase {
     }
 
     @Test
-    public void givenDataSet_whenDelete_thenItemIsDeleted() throws Exception {
+    public void userTableGivenDataSet_whenDelete_thenUserIsDeleted() throws Exception {
         try (InputStream is = DataSourceDBUnitTest.class.getClassLoader()
-                .getResourceAsStream("dbunit/items_exp_delete.xml")) {
+                .getResourceAsStream("dbunit/users_exp_delete.xml")) {
             // given
-            ITable expectedTable = (new FlatXmlDataSetBuilder().build(is)).getTable("ITEMS");
+            ITable expectedTable = (new FlatXmlDataSetBuilder().build(is)).getTable("user_table");
 
             // when
-            connection.createStatement().executeUpdate("delete from ITEMS where id = 2");
+            connection.createStatement().executeUpdate("delete from user_table where id = 7");
 
             // then
             IDataSet databaseDataSet = getConnection().createDataSet();
-            ITable actualTable = databaseDataSet.getTable("ITEMS");
+            ITable actualTable = databaseDataSet.getTable("user_table");
             Assertion.assertEquals(expectedTable, actualTable);
         }
     }
 
+
+
+
+
     @Test
-    public void givenDataSet_whenUpdate_thenItemHasNewName() throws Exception {
-        try (InputStream is = DataSourceDBUnitTest.class.getClassLoader()
-                .getResourceAsStream("dbunit/items_exp_rename.xml")) {
-            // given
-            ITable expectedTable = (new FlatXmlDataSetBuilder().build(is)).getTable("ITEMS");
+    public void departmentTableGivenDataSet_whenSelect_thenFirstNameIsName7() throws SQLException {
+        ResultSet rs = connection.createStatement().executeQuery("select * from department_table where id = 7");
 
-            connection.createStatement().executeUpdate("update ITEMS set title='new name' where id = 1");
-
-            IDataSet databaseDataSet = getConnection().createDataSet();
-            ITable actualTable = databaseDataSet.getTable("ITEMS");
-
-            Assertion.assertEquals(expectedTable, actualTable);
-        }
+        assertThat(rs.next()).isTrue();
+        assertThat(rs.getString("name")).isEqualTo("name7");
     }
 
     @Test
-    public void givenDataSet_whenInsertUnexpectedData_thenFail() throws Exception {
-        try (InputStream is = getClass().getClassLoader()
-                .getResourceAsStream("dbunit/expected-multiple-failures.xml")) {
-
+    public void departmentTableGivenDataSet_whenInsert_thenTableHasNewDepartment() throws Exception {
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream("dbunit/expected-departments.xml")) {
             // given
             IDataSet expectedDataSet = new FlatXmlDataSetBuilder().build(is);
-            ITable expectedTable = expectedDataSet.getTable("ITEMS");
+            ITable expectedTable = expectedDataSet.getTable("department_table");
             Connection conn = getDataSource().getConnection();
-            DiffCollectingFailureHandler collectingHandler = new DiffCollectingFailureHandler();
 
             // when
-            conn.createStatement().executeUpdate("INSERT INTO ITEMS (title, price) VALUES ('Battery', '1000000')");
-            ITable actualData = getConnection().createDataSet().getTable("ITEMS");
+            conn.createStatement()
+                    .executeUpdate("INSERT INTO department_table (name) VALUES ('name12312')");
+            ITable actualData = getConnection()
+                    .createQueryTable("result_name", "SELECT * FROM department_table WHERE name='name7'");
 
             // then
-            Assertion.assertEquals(expectedTable, actualData, collectingHandler);
-            if (!collectingHandler.getDiffList().isEmpty()) {
-                String message = (String) collectingHandler.getDiffList().stream()
-                        .map(d -> formatDifference((Difference) d)).collect(joining("\n"));
-                logger.error(() -> message);
-            }
+            assertEqualsIgnoreCols(expectedTable, actualData, new String[]{"id"});
         }
     }
 
-    private static String formatDifference(Difference diff) {
-        return "expected value in " + diff.getExpectedTable().getTableMetaData().getTableName() + "." + diff
-                .getColumnName() + " row " + diff.getRowIndex() + ":" + diff.getExpectedValue() + ", but was: " + diff
-                .getActualValue();
+    @Test
+    public void departmentTableGivenDataSet_whenDelete_thenDepartmentIsDeleted() throws Exception {
+        try (InputStream is = DataSourceDBUnitTest.class.getClassLoader()
+                .getResourceAsStream("dbunit/departments_exp_delete.xml")) {
+            // given
+            ITable expectedTable = (new FlatXmlDataSetBuilder().build(is)).getTable("department_table");
+
+            // when
+            connection.createStatement().executeUpdate("delete from department_table where id = 7");
+
+            // then
+            IDataSet databaseDataSet = getConnection().createDataSet();
+            ITable actualTable = databaseDataSet.getTable("department_table");
+            Assertion.assertEquals(expectedTable, actualTable);
+        }
     }
 }

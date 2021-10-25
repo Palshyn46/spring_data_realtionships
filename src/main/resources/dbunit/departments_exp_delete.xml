@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataset>
-    <user_table id='1' name='name1' email='email1'/>
+    <department_table id='1' name='name1'/>
 </dataset>
