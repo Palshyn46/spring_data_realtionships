@@ -9,9 +9,11 @@ import com.example.spring_data_relationships.service.DepartmentServiceImpl;
 import com.example.spring_data_relationships.service.UserService;
 import com.example.spring_data_relationships.service.UserServiceImpl;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@ComponentScan("com.example.spring_data_relationships")
 public class SpringConfig {
 
     @Bean

@@ -1,5 +1,16 @@
 package com.example.spring_data_relationships.demo.dbunit;
 
+import com.example.spring_data_relationships.configuration.SpringConfig;
+import com.example.spring_data_relationships.controller.UserController;
+import com.example.spring_data_relationships.dao.UserDao;
+import com.example.spring_data_relationships.dto.UserDto;
+import com.example.spring_data_relationships.entity.DepartmentEntity;
+import com.example.spring_data_relationships.entity.UserEntity;
+import com.example.spring_data_relationships.service.UserService;
+import com.example.spring_data_relationships.service.UserServiceImpl;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.dbunit.Assertion;
 import org.dbunit.DataSourceBasedDBTestCase;
@@ -11,21 +22,79 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.dbunit.Assertion.assertEqualsIgnoreCols;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(JUnit4.class)
-@Slf4j
+//@RunWith(JUnit4.class)
+//@Slf4j
+//@SpringBootTest
+//@AutoConfigureMockMvc
+//@WebMvcTest(UserController.class)
+//@SpringJUnitConfig
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { SpringConfig.class }, loader = AnnotationConfigContextLoader.class)
 public class DataSourceDBUnitTest extends DataSourceBasedDBTestCase {
+
+//    @Autowired
+//    private ApplicationContext applicationContext;
+
+    //@MockBean
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    UserDao userDao;
+
+    @Autowired
+    UserServiceImpl userServiceImpl;
+
+//    @Autowired
+//    private MockMvc mockMvc;
+
+//    @Override
+//    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+//        this.applicationContext = applicationContext;
+//    }
+
+//    @Autowired
+//    private ObjectMapper objectMapper;
+//
+//    @BeforeEach
+//    public void init() {
+//        objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
+//    }
 
     private Connection connection;
 
@@ -80,6 +149,34 @@ public class DataSourceDBUnitTest extends DataSourceBasedDBTestCase {
     public void tearDown() throws Exception {
         super.tearDown();
     }
+
+    @org.junit.jupiter.api.Test
+    //@SneakyThrows
+    public void shouldReturn200IfUserExist5() throws Exception{
+        //userService = (UserService) applicationContext.getBean("userService");
+        Long expectedId = 1L;
+        String expectedName = "firstName";
+        String expectedEmail = "email@email.com";
+        UserDto testUser = UserDto.builder().id(expectedId).name(expectedName).email(expectedEmail).build();
+
+        when(userService.get(eq(expectedId))).thenReturn(Optional.of(testUser));
+
+//        MvcResult result = this.mockMvc.perform(get("/user/{id}", expectedId)).andExpect(status().isOk())
+//                .andReturn();
+//        String content = result.getResponse().getContentAsString();
+//        UserDto expectedUser = objectMapper.readValue(content, UserDto.class);
+//        assertEquals(expectedId, expectedUser.getId());
+//        assertEquals(expectedName, expectedUser.getName());
+//        assertEquals(expectedEmail, expectedUser.getEmail());
+    }
+
+
+
+
+
+
+
+
 
     @Test
     public void userTableGivenDataSet_whenSelect_thenFirstNameIsName7() throws SQLException {
@@ -170,10 +267,21 @@ public class DataSourceDBUnitTest extends DataSourceBasedDBTestCase {
         }
     }
 
-    @Test
-    public void testGetById() throws Exception {
+    //@Test
+//    @org.junit.jupiter.api.Test
+//    @SneakyThrows
+//    public void testGetById() throws Exception {
+//        Optional<UserDto> userDto = userService.get(1L);
+//    }
 
-    }
+
+
+//    @Test
+//    @Transactional
+//    @Rollback(value = true)
+//    public void testAddDepartment() {
+//
+//    }
 
 //
 //    @ContextConfiguration(locations = "classpath:application-context-test.xml")

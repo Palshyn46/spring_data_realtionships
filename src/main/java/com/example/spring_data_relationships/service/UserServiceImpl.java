@@ -5,9 +5,11 @@ import com.example.spring_data_relationships.dto.UserDto;
 import com.example.spring_data_relationships.entity.UserEntity;
 import com.example.spring_data_relationships.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+@Component
 public class UserServiceImpl implements UserService {
     UserDao userDao;
     UserMapper userMapper;
