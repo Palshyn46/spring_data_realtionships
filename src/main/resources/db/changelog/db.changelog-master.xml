@@ -7,10 +7,6 @@
     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd
     http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.3.xsd">
 
-    <preConditions>
-        <dbms type="postgresql"/>
-    </preConditions>
-
     <changeSet id="0" author="author">
         <tagDatabase tag="db_init"/>
     </changeSet>

@@ -2,7 +2,9 @@
 <dataset>
     <user_table id='7' name='name7' email='email7'/>
     <user_table id='1' name='name1' email='email1'/>
+    <user_table id='3' name='name3' email='email3'/>
     <department_table id='7' name='name7'/>
     <department_table id='1' name='name1'/>
-    <groups id='1' name='name'/>
+    <department_table id='3' name='name3'/>
+    <group_table id='1' name='name'/>
 </dataset>

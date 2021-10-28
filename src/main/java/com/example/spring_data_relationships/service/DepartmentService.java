@@ -13,4 +13,6 @@ public interface DepartmentService {
     Optional<DepartmentDto> update(DepartmentDto departmentDto, Long id);
 
     void delete(Long id);
+
+    boolean existsById(Long id);
 }

@@ -45,4 +45,9 @@ public class DepartmentServiceImpl implements DepartmentService {
             departmentDao.deleteById(id);
         }
     }
+
+    @Override
+    public boolean existsById(Long id) {
+        return departmentDao.existsById(id);
+    }
 }

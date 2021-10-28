@@ -39,8 +39,7 @@ public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    //@MockBean
-    @Autowired
+    @MockBean
     private UserService userService;
 
     @Autowired

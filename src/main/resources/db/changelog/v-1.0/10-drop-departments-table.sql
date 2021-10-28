@@ -1,1 +1,1 @@
-DROP TABLE departments;
+DROP TABLE department_table;
