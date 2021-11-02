@@ -3,130 +3,93 @@ package com.example.spring_data_relationships.demo.dbunit;
 import com.example.spring_data_relationships.configuration.SpringConfig;
 import com.example.spring_data_relationships.dto.DepartmentDto;
 import com.example.spring_data_relationships.service.DepartmentService;
-import com.example.spring_data_relationships.service.DepartmentService;
+import com.github.springtestdbunit.DbUnitTestExecutionListener;
+import com.github.springtestdbunit.annotation.DatabaseSetup;
+import com.github.springtestdbunit.annotation.DatabaseTearDown;
 import lombok.SneakyThrows;
-import org.dbunit.DataSourceBasedDBTestCase;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
-import org.dbunit.operation.DatabaseOperation;
-import org.h2.jdbcx.JdbcDataSource;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
-
-import javax.sql.DataSource;
-import java.io.InputStream;
-import java.sql.Connection;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {SpringConfig.class}, loader = AnnotationConfigContextLoader.class)
-@TestPropertySource(locations = "classpath:application.properties")
-public class DepartmentServiceTest extends DataSourceBasedDBTestCase {
+@SpringJUnitConfig(SpringConfig.class)
+@TestPropertySource(locations = {
+        "classpath:application-test.properties"})
+@DatabaseTearDown
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, DbUnitTestExecutionListener.class })
+public class DepartmentServiceTest {
 
-    @Autowired
-    private DepartmentService departmentService;
+        @Autowired
+        private DepartmentService departmentService;
 
-    private Connection connection;
+        @SneakyThrows
+        @DatabaseSetup("classpath:dbunit/data.xml")
+        @Test
+        public void shouldReturnDepartmentDtoWhenCreate() {
+            String expectedName = "name8";
+            DepartmentDto testDepartment = DepartmentDto.builder().name(expectedName).build();
 
-    @Override
-    public DataSource getDataSource() {
-        JdbcDataSource dataSource = new JdbcDataSource();
-        dataSource.setURL("jdbc:h2:mem:default;DB_CLOSE_DELAY=-1;init=runscript from 'classpath:dbunit/schema.sql'");
-        dataSource.setUser("sa");
-        dataSource.setPassword("");
-        return dataSource;
-    }
+            DepartmentDto createdDepartment = departmentService.create(testDepartment);
+            DepartmentDto actualDepartment = departmentService.get(createdDepartment.getId()).orElseThrow(RuntimeException::new);
 
-    @Override
-    protected IDataSet getDataSet() throws Exception {
-        try (InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream("dbunit/data.xml")) {
-            return new FlatXmlDataSetBuilder().build(resourceAsStream);
+            Assertions.assertEquals(expectedName, actualDepartment.getName());
+            Assertions.assertEquals(createdDepartment.getId(), actualDepartment.getId());
         }
-    }
 
-    @Override
-    public DatabaseOperation getSetUpOperation() {
-        return DatabaseOperation.REFRESH;
-    }
+        @SneakyThrows
+        @DatabaseSetup("classpath:dbunit/data.xml")
+        @Test
+        public void shouldReturnDepartmentDtoWhenGet() {
+            Long expectedId = 1L;
+            String expectedName = "name1";
 
-    @Override
-    public DatabaseOperation getTearDownOperation() {
-        return DatabaseOperation.DELETE_ALL;
-    }
+            DepartmentDto actualDepartment = departmentService.get(expectedId).orElseThrow(RuntimeException::new);
 
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        connection = getConnection().getConnection();
-    }
+            Assertions.assertEquals(expectedName, actualDepartment.getName());
+            Assertions.assertEquals(expectedId, actualDepartment.getId());
+        }
 
-    @After
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
+        @SneakyThrows
+        @DatabaseSetup("classpath:dbunit/data.xml")
+        @Test
+        public void shouldReturnUpdatedDepartmentDtoWhenUpdate() {
+            String expectedName = "updatedName";
+            Long expectedId = 1L;
+            DepartmentDto testDepartment = DepartmentDto.builder()
+                    .id(expectedId)
+                    .name(expectedName)
+                    .build();
 
-    @SneakyThrows
-    @org.junit.Test
-    public void shouldReturnDepartmentDtoWhenCreate() {
-        String expectedName = "name8";
-        Long expectedId = 8L;
-        DepartmentDto testDepartment = DepartmentDto.builder().name(expectedName).build();
+            DepartmentDto resultDepartment = departmentService.update(testDepartment, expectedId).get();
 
-        DepartmentDto resultDepartment = departmentService.create(testDepartment);
+            Assertions.assertEquals(expectedName, resultDepartment.getName());
+            Assertions.assertEquals(expectedId, resultDepartment.getId());
+        }
 
-        Assert.assertEquals(expectedName, resultDepartment.getName());
-        Assert.assertEquals(expectedId, resultDepartment.getId());
-    }
+        @SneakyThrows
+        @DatabaseSetup("classpath:dbunit/data.xml")
+        @Test
+        public void shouldVerifyRemoveMethodCallWhenDelete() {
+            Long expectedId = 1L;
 
-    @SneakyThrows
-    @org.junit.Test
-    public void shouldReturnDepartmentDtoWhenGet() {
-        Long expectedId = 7L;
+            DepartmentService spyDepartmentService = Mockito.spy(departmentService);
+            spyDepartmentService.delete(expectedId);
+            Boolean exist = spyDepartmentService.existsById(expectedId);
 
-        DepartmentDto departmentDto = departmentService.get(expectedId).get();
+            verify(spyDepartmentService, times(1)).delete(expectedId);
+            Assertions.assertEquals(false, exist);
+        }
 
-        Assert.assertEquals(DepartmentDto.class, departmentDto.getClass());
-        Assert.assertEquals(expectedId, departmentDto.getId());
-    }
 
-    @SneakyThrows
-    @org.junit.Test
-    public void shouldReturnUpdatedDepartmentDtoWhenUpdate() {
-        String expectedName = "updatedName";
-        String expectedEmail = "updatedEmail";
-        Long expectedId = 1L;
-        DepartmentDto testDepartment = DepartmentDto.builder()
-                .id(expectedId)
-                .name(expectedName)
-                .build();
 
-        DepartmentDto resultDepartment = departmentService.update(testDepartment, expectedId).get();
 
-        Assert.assertEquals(expectedName, resultDepartment.getName());
-        Assert.assertEquals(expectedId, resultDepartment.getId());
-    }
 
-    @SneakyThrows
-    @org.junit.Test
-    public void shouldVerifyRemoveMethodCallWhenDelete() {
-        Long expectedId = 1L;
-
-        DepartmentService spyDepartmentService = Mockito.spy(departmentService);
-        spyDepartmentService.delete(expectedId);
-        Boolean exist = spyDepartmentService.existsById(expectedId);
-
-        verify(spyDepartmentService, times(1)).delete(expectedId);
-        Assert.assertEquals(false, exist);
-    }
 
 }

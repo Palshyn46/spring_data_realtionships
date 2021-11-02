@@ -16,10 +16,6 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan("com.example.spring_data_relationships")
 public class SpringConfig {
 
-//    static {
-//        System.setProperty("db-type", "h2");
-//    }
-
     @Bean
     public DepartmentService departmentService(DepartmentDao departmentDao, DepartmentMapper departmentMapper) {
         return new DepartmentServiceImpl(departmentDao, departmentMapper);
