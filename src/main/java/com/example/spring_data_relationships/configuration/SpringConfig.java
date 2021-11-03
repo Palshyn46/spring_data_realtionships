@@ -22,7 +22,7 @@ public class SpringConfig {
     }
 
     @Bean
-    public UserService userService(UserDao userDao, UserMapper userMapper) {
-        return new UserServiceImpl(userDao, userMapper);
+    public UserService userService(UserDao userDao, UserMapper userMapper, DepartmentService departmentService) {
+        return new UserServiceImpl(userDao, userMapper, departmentService);
     }
 }

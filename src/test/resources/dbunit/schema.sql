@@ -2,7 +2,8 @@ CREATE TABLE IF NOT EXISTS user_table
 (
     id LONG AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255),
-    email VARCHAR(255)
+    email VARCHAR(255),
+    department_id VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS department_table

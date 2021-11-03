@@ -13,6 +13,5 @@ public class DepartmentDtoWithUserDto {
 
     private Long id;
     private String name;
-
     private List<UserDto> users;
 }

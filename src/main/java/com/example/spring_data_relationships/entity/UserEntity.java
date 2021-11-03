@@ -1,11 +1,9 @@
 package com.example.spring_data_relationships.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -20,7 +18,17 @@ public class UserEntity {
     private String name;
     private String email;
 
+    @Column(name = "department_id")
+    private Long departmentId;
+
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "department_id",
+            referencedColumnName = "id",
+            insertable = false,
+            updatable = false
+    )
     private DepartmentEntity department;
+
 }

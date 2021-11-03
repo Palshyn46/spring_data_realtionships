@@ -16,6 +16,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
+import java.util.Optional;
+
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -24,8 +26,8 @@ import static org.mockito.Mockito.verify;
         //"classpath:application.properties",
         "classpath:application-test.properties"})
 @DatabaseTearDown
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, DbUnitTestExecutionListener.class })
-public class UserServiceTest{
+@TestExecutionListeners({DependencyInjectionTestExecutionListener.class, DbUnitTestExecutionListener.class})
+public class UserServiceTest {
 
     @Autowired
     private UserService userService;
@@ -93,5 +95,22 @@ public class UserServiceTest{
 
         verify(spyUserService, times(1)).delete(expectedId);
         Assertions.assertEquals(false, exist);
+    }
+
+    @SneakyThrows
+    @DatabaseSetup("classpath:dbunit/data.xml")
+    @Test
+    public void shouldReturnListOfUserDtos() {
+        String expectedName = "name8";
+        String expectedEmail = "email8";
+        Long departmentId = 1L;
+        UserDto testUserDto = UserDto.builder().name(expectedName).email(expectedEmail).departmentId(departmentId).build();
+
+        userService.addUserToDepartment(testUserDto, departmentId);
+        Optional<UserDto> userDtoOptional = userService.get(8L);
+        UserDto resultUserDto = userService.get(8L).orElseThrow(RuntimeException::new);
+
+        Assertions.assertEquals(expectedName, resultUserDto.getName());
+        Assertions.assertEquals(expectedEmail, resultUserDto.getEmail());
     }
 }

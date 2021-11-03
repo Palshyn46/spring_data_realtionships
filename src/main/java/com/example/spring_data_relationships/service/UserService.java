@@ -15,4 +15,6 @@ public interface UserService {
     void delete(Long id);
 
     boolean existsById(Long id);
+
+    void addUserToDepartment(UserDto user, Long departmentId);
 }
