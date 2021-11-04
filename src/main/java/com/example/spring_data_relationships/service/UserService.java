@@ -1,6 +1,7 @@
 package com.example.spring_data_relationships.service;
 
 import com.example.spring_data_relationships.dto.UserDto;
+import com.example.spring_data_relationships.dto.UserDtoWithDepartment;
 
 import java.util.Optional;
 
@@ -16,5 +17,7 @@ public interface UserService {
 
     boolean existsById(Long id);
 
-    void addUserToDepartment(UserDto user, Long departmentId);
+    UserDtoWithDepartment findUserDtoWithDepartment(Long id);
+
+    void deleteDepartmentFromUser(Long expectedUserId, Long expectedDepartmentId);
 }

@@ -17,12 +17,15 @@ import org.springframework.context.annotation.Configuration;
 public class SpringConfig {
 
     @Bean
-    public DepartmentService departmentService(DepartmentDao departmentDao, DepartmentMapper departmentMapper) {
-        return new DepartmentServiceImpl(departmentDao, departmentMapper);
+    public DepartmentService departmentService(DepartmentDao departmentDao,
+                                               DepartmentMapper departmentMapper,
+                                               UserDao userDao) {
+        return new DepartmentServiceImpl(departmentDao, departmentMapper, userDao);
     }
 
     @Bean
-    public UserService userService(UserDao userDao, UserMapper userMapper, DepartmentService departmentService) {
-        return new UserServiceImpl(userDao, userMapper, departmentService);
+    public UserService userService(UserDao userDao,
+                                   UserMapper userMapper) {
+        return new UserServiceImpl(userDao, userMapper);
     }
 }

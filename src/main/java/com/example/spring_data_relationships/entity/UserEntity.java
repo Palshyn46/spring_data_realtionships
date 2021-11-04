@@ -22,7 +22,8 @@ public class UserEntity {
     private Long departmentId;
 
     @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
     @JoinColumn(
             name = "department_id",
             referencedColumnName = "id",

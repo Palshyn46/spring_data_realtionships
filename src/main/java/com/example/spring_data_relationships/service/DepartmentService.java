@@ -2,6 +2,7 @@ package com.example.spring_data_relationships.service;
 
 import com.example.spring_data_relationships.dto.DepartmentDto;
 import com.example.spring_data_relationships.dto.DepartmentDtoWithUserDto;
+import com.example.spring_data_relationships.dto.UserDto;
 
 import java.util.Optional;
 
@@ -20,4 +21,10 @@ public interface DepartmentService {
     DepartmentDtoWithUserDto findDepartmentDtoWithUserDtoById(Long departmentId);
 
     DepartmentDtoWithUserDto saveDepartmentDtoWithUserDto(DepartmentDtoWithUserDto departmentDtoWithUserDto);
+
+    void addUserToDepartment(Long userId, Long departmentId);
+
+    void deleteUserFromDepartment(Long userId, Long departmentId);
+
+    void updateUserInDepartment(UserDto user, Long userId, Long departmentId);
 }

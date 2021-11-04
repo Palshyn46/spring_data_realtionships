@@ -25,6 +25,7 @@ public class DepartmentEntity {
     @ToString.Exclude
     @OneToMany(
             fetch = FetchType.LAZY,
+            orphanRemoval=true,
             cascade = CascadeType.ALL,
             mappedBy = "department")
     private List<UserEntity> users;

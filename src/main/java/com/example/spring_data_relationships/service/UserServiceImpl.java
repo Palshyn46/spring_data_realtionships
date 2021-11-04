@@ -3,6 +3,7 @@ package com.example.spring_data_relationships.service;
 import com.example.spring_data_relationships.dao.UserDao;
 import com.example.spring_data_relationships.dto.DepartmentDtoWithUserDto;
 import com.example.spring_data_relationships.dto.UserDto;
+import com.example.spring_data_relationships.dto.UserDtoWithDepartment;
 import com.example.spring_data_relationships.entity.UserEntity;
 import com.example.spring_data_relationships.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +18,13 @@ public class UserServiceImpl implements UserService {
     UserMapper userMapper;
     DepartmentService departmentService;
 
-    public UserServiceImpl(UserDao userDao, UserMapper userMapper, DepartmentService departmentService) {
+    public UserServiceImpl(UserDao userDao, UserMapper userMapper) {
         this.userDao = userDao;
         this.userMapper = userMapper;
-        this.departmentService = departmentService;
+    }
+
+    @Autowired
+    public void setDepartmentService(DepartmentService departmentService) {
     }
 
     @Transactional
@@ -63,13 +67,21 @@ public class UserServiceImpl implements UserService {
         return userDao.existsById(id);
     }
 
-    @Transactional
     @Override
-    public void addUserToDepartment(UserDto user, Long departmentId) {
-        DepartmentDtoWithUserDto department = departmentService.findDepartmentDtoWithUserDtoById(departmentId);
-        List<UserDto> users = department.getUsers();
-        users.add(user);
-        department.setUsers(users);
-        departmentService.saveDepartmentDtoWithUserDto(department);
+    public UserDtoWithDepartment findUserDtoWithDepartment(Long id) {
+        Optional<UserEntity> user = userDao.findById(id);
+        return user.map(userMapper::toUserDtoWithDepartment).orElse(null);
+    }
+
+    @Override
+    public void deleteDepartmentFromUser(Long userId, Long departmentId) {
+        userDao
+                .findById(userId)
+                .map(usr -> {
+                    usr.setDepartment(null);
+                    usr.setDepartmentId(null);
+                    userDao.save(usr);
+                    return null;
+                });
     }
 }

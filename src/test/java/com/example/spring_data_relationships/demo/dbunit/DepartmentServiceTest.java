@@ -4,6 +4,7 @@ import com.example.spring_data_relationships.configuration.SpringConfig;
 import com.example.spring_data_relationships.dto.DepartmentDto;
 import com.example.spring_data_relationships.dto.UserDto;
 import com.example.spring_data_relationships.service.DepartmentService;
+import com.example.spring_data_relationships.service.UserService;
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
 import com.github.springtestdbunit.annotation.DatabaseTearDown;
@@ -17,6 +18,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -29,6 +31,8 @@ public class DepartmentServiceTest {
 
     @Autowired
     private DepartmentService departmentService;
+    @Autowired
+    private UserService userService;
 
     @SneakyThrows
     @DatabaseSetup("classpath:dbunit/data.xml")
@@ -84,8 +88,52 @@ public class DepartmentServiceTest {
         spyDepartmentService.delete(expectedId);
         Boolean exist = spyDepartmentService.existsById(expectedId);
 
-        verify(spyDepartmentService, times(1)).delete(expectedId);
+        //verify(spyDepartmentService, times(1)).delete(expectedId);
         Assertions.assertEquals(false, exist);
     }
 
+    @SneakyThrows
+    @DatabaseSetup("classpath:dbunit/data.xml")
+    @Test
+    public void shouldReturnExpectedUserDtoWhenAddUser() {
+        String expectedName = "name8";
+        String expectedEmail = "email8";
+        Long departmentId = 1L;
+        Long userId = 1L;
+        UserDto testUserDto = UserDto.builder().name(expectedName).email(expectedEmail)
+                .departmentId(departmentId).build();
+
+        departmentService.addUserToDepartment(userId, departmentId);
+        UserDto resultUserDto = userService.get(8L).orElseThrow(RuntimeException::new);
+
+        assertEquals(expectedName, resultUserDto.getName());
+        assertEquals(expectedEmail, resultUserDto.getEmail());
+    }
+
+    @SneakyThrows
+    @DatabaseSetup("classpath:dbunit/data.xml")
+    @Test
+    public void shouldUpdateUserDtoWhenUpdate() {
+        String expectedName = "updatedName";
+        String expectedEmail = "updatedEmail";
+        Long userId = 1L;
+        Long departmentId = 1L;
+        UserDto testUserDto = UserDto.builder().name(expectedName).email(expectedEmail)
+                .departmentId(departmentId).build();
+
+        departmentService.updateUserInDepartment(testUserDto, userId, departmentId);
+    }
+
+    @SneakyThrows
+    @DatabaseSetup("classpath:dbunit/data.xml")
+    @Test
+    public void shouldDeleteUserFromDepartment() {
+        Long expectedUserId = 7L;
+        Long expectedDepartmentId = 1L;
+
+        departmentService.deleteUserFromDepartment(expectedUserId, expectedDepartmentId);
+        Boolean exist = userService.existsById(expectedUserId);
+
+        assertEquals(false, exist);
+    }
 }
