@@ -1,6 +1,7 @@
 package com.example.spring_data_relationships.entity;
 
 import lombok.*;
+import org.apache.commons.lang3.builder.HashCodeExclude;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -18,18 +19,18 @@ public class UserEntity {
     private String name;
     private String email;
 
-    @Column(name = "department_id")
-    private Long departmentId;
-
+    @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL)
-    @JoinColumn(
-            name = "department_id",
-            referencedColumnName = "id",
-            insertable = false,
-            updatable = false
+    @ManyToOne(fetch = FetchType.LAZY
+//            ,
+//            cascade = CascadeType.ALL
     )
+    /*@JoinColumn(
+//            name = "id",
+            referencedColumnName = "id"
+//            ,
+//            insertable = false,
+//            updatable = false
+    )*/
     private DepartmentEntity department;
-
 }

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataset>
-    <user_table id='7' name='name7' email='email7' department_id='1'/>
-    <user_table id='1' name='name1' email='email1' department_id='1'/>
-    <user_table id='3' name='name3' email='email3' department_id='1'/>
+    <user_table id='7' name='name7' email='email7'/>
+    <user_table id='1' name='name1' email='email1'/>
+    <user_table id='3' name='name3' email='email3'/>
     <department_table id='7' name='name7'/>
     <department_table id='1' name='name1'/>
     <department_table id='3' name='name3'/>

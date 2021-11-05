@@ -2,6 +2,7 @@ package com.example.spring_data_relationships.demo.dbunit;
 
 import com.example.spring_data_relationships.configuration.SpringConfig;
 import com.example.spring_data_relationships.dto.DepartmentDto;
+import com.example.spring_data_relationships.dto.DepartmentDtoWithUserDto;
 import com.example.spring_data_relationships.dto.UserDto;
 import com.example.spring_data_relationships.service.DepartmentService;
 import com.example.spring_data_relationships.service.UserService;
@@ -12,6 +13,7 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.mockito.internal.matchers.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestPropertySource;
@@ -95,45 +97,33 @@ public class DepartmentServiceTest {
     @SneakyThrows
     @DatabaseSetup("classpath:dbunit/data.xml")
     @Test
-    public void shouldReturnExpectedUserDtoWhenAddUser() {
-        String expectedName = "name8";
-        String expectedEmail = "email8";
+    public void shouldAddUserToDepartment() {
         Long departmentId = 1L;
         Long userId = 1L;
-        UserDto testUserDto = UserDto.builder().name(expectedName).email(expectedEmail)
-                .departmentId(departmentId).build();
 
         departmentService.addUserToDepartment(userId, departmentId);
-        UserDto resultUserDto = userService.get(8L).orElseThrow(RuntimeException::new);
+        DepartmentDtoWithUserDto department = departmentService
+                .findDepartmentDtoWithUserDtoById(departmentId);
 
-        assertEquals(expectedName, resultUserDto.getName());
-        assertEquals(expectedEmail, resultUserDto.getEmail());
-    }
-
-    @SneakyThrows
-    @DatabaseSetup("classpath:dbunit/data.xml")
-    @Test
-    public void shouldUpdateUserDtoWhenUpdate() {
-        String expectedName = "updatedName";
-        String expectedEmail = "updatedEmail";
-        Long userId = 1L;
-        Long departmentId = 1L;
-        UserDto testUserDto = UserDto.builder().name(expectedName).email(expectedEmail)
-                .departmentId(departmentId).build();
-
-        departmentService.updateUserInDepartment(testUserDto, userId, departmentId);
+        Assertions.assertEquals(1, department.getUsers().size());
     }
 
     @SneakyThrows
     @DatabaseSetup("classpath:dbunit/data.xml")
     @Test
     public void shouldDeleteUserFromDepartment() {
-        Long expectedUserId = 7L;
-        Long expectedDepartmentId = 1L;
+        Long userId = 1L;
+        Long departmentId = 1L;
 
-        departmentService.deleteUserFromDepartment(expectedUserId, expectedDepartmentId);
-        Boolean exist = userService.existsById(expectedUserId);
+        departmentService.addUserToDepartment(userId, departmentId);
+        DepartmentDtoWithUserDto departmentBeforeDelete = departmentService
+                .findDepartmentDtoWithUserDtoById(departmentId);
 
-        assertEquals(false, exist);
+        departmentService.deleteUserFromDepartment(userId, departmentId);
+        DepartmentDtoWithUserDto departmentAfterDelete = departmentService
+                .findDepartmentDtoWithUserDtoById(departmentId);
+
+        Assertions.assertEquals(1, departmentBeforeDelete.getUsers().size());
+        Assertions.assertEquals(0, departmentAfterDelete.getUsers().size());
     }
 }

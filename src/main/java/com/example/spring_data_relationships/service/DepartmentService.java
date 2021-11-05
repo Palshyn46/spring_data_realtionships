@@ -25,6 +25,4 @@ public interface DepartmentService {
     void addUserToDepartment(Long userId, Long departmentId);
 
     void deleteUserFromDepartment(Long userId, Long departmentId);
-
-    void updateUserInDepartment(UserDto user, Long userId, Long departmentId);
 }

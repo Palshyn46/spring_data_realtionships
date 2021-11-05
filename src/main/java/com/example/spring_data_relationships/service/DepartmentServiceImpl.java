@@ -46,7 +46,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     public Optional<DepartmentDto> update(DepartmentDto departmentDto, Long id) {
         DepartmentEntity departmentEntity = null;
         if (departmentDao.existsById(id)) {
-            departmentDto.setId(id);
+            //departmentDto.setId(id);
             departmentEntity = departmentDao.save(departmentMapper.toEntity(departmentDto));
         }
         return Optional.ofNullable(departmentMapper.toDto(departmentEntity));
@@ -83,36 +83,39 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Transactional
     @Override
     public void addUserToDepartment(Long userId, Long departmentId) {
-        UserEntity user = userDao.findById(userId).get(); //???
-        DepartmentDtoWithUserDto department = findDepartmentDtoWithUserDtoById(departmentId);
-        List<UserDto> users = department.getUsers();
-        users.add(user);
-        department.setUsers(users);
-        saveDepartmentDtoWithUserDto(department);
+        userDao
+                .findById(userId)
+                .map(usr -> {
+                    departmentDao
+                            .findById(departmentId)
+                            .map(dep -> {
+                                List<UserEntity> users = dep.getUsers();
+                                users.add(usr);
+                                dep.setUsers(users);
+                                usr.setDepartment(dep);
+                                return null;
+                            });
+                    return null;
+                });
     }
 
     @Transactional
     @Override
     public void deleteUserFromDepartment(Long userId, Long departmentId) {
-        DepartmentDtoWithUserDto department = findDepartmentDtoWithUserDtoById(departmentId);
-        List<UserDto> users = department.getUsers();
-        UserDto userDto = users.stream().filter(userDto1 -> userId.equals(userDto1.getId()))
-                .findFirst()
-                .orElse(null);
-        users.remove(userDto);
-        department.setUsers(users);
-        saveDepartmentDtoWithUserDto(department);
-    }
-
-    @Override
-    public void updateUserInDepartment(UserDto user, Long userId, Long departmentId) {
-        DepartmentDtoWithUserDto department = findDepartmentDtoWithUserDtoById(departmentId);
-        List<UserDto> users = department.getUsers();
-        UserDto userDto = users.stream().filter(userDto1 -> userId.equals(userDto1.getId()))
-                .findFirst()
-                .orElse(null);
-        users.remove(userDto);
-        department.setUsers(users);
-        saveDepartmentDtoWithUserDto(department);
+        userDao
+                .findById(userId)
+                .map(usr -> {
+                    departmentDao
+                            .findById(departmentId)
+                            .map(dep -> {
+                                dep.getUsers().remove(usr);
+                                //List<UserEntity> users = dep.getUsers();
+                                //users.remove(usr);
+                                //dep.setUsers(users);
+                                //usr.setDepartment(dep);
+                                return null;
+                            });
+                    return null;
+                });
     }
 }

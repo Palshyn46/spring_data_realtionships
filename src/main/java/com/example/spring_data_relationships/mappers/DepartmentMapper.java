@@ -29,11 +29,11 @@ public interface DepartmentMapper {
     Iterable<DepartmentEntity> departmentDtosWithUserDtoToDepartmentEntities(Iterable<DepartmentDto> departments);
 
 
-    UserDto toDto(UserEntity user);
+    UserDto toUserDto(UserEntity user);
 
     Iterable<UserDto> usersToUserDtos(Iterable<UserEntity> users);
 
-    UserEntity toEntity(UserDto user);
+    UserEntity toUserEntity(UserDto user);
 
     Iterable<UserEntity> dtosToUserEntities(Iterable<UserDto> users);
 }

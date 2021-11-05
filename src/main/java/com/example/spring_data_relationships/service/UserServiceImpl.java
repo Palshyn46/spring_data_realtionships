@@ -79,7 +79,6 @@ public class UserServiceImpl implements UserService {
                 .findById(userId)
                 .map(usr -> {
                     usr.setDepartment(null);
-                    usr.setDepartmentId(null);
                     userDao.save(usr);
                     return null;
                 });

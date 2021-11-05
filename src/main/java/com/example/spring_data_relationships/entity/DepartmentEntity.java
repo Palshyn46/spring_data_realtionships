@@ -1,12 +1,10 @@
 package com.example.spring_data_relationships.entity;
 
 import com.example.spring_data_relationships.dto.UserDto;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -22,11 +20,12 @@ public class DepartmentEntity {
     private Long id;
     private String name;
 
+    @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @OneToMany(
             fetch = FetchType.LAZY,
             orphanRemoval=true,
             cascade = CascadeType.ALL,
             mappedBy = "department")
-    private List<UserEntity> users;
+    private List<UserEntity> users = new ArrayList<>();
 }
