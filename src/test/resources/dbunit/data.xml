@@ -6,5 +6,7 @@
     <department_table id='7' name='name7'/>
     <department_table id='1' name='name1'/>
     <department_table id='3' name='name3'/>
-    <group_table id='1' name='name'/>
+    <group_table id='1' name='name1'/>
+    <group_table id='3' name='name3'/>
+    <group_table id='7' name='name7'/>
 </dataset>

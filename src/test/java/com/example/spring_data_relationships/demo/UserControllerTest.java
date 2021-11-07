@@ -1,21 +1,17 @@
 package com.example.spring_data_relationships.demo;
 
-import com.example.spring_data_relationships.controller.DepartmentController;
 import com.example.spring_data_relationships.controller.UserController;
 import com.example.spring_data_relationships.dto.UserDto;
 import com.example.spring_data_relationships.exceptions.MyEntityNotFoundException;
-import com.example.spring_data_relationships.service.DepartmentService;
 import com.example.spring_data_relationships.service.UserService;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;

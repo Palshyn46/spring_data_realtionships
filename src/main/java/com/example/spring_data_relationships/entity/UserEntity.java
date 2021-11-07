@@ -33,4 +33,16 @@ public class UserEntity {
 //            updatable = false
     )*/
     private DepartmentEntity department;
+
+    @ToString.Exclude
+    @ManyToMany(
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE}
+    )
+    @JoinTable(
+            name = "users_groups_table",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
+    private Set<GroupEntity> groups;
 }

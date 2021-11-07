@@ -46,7 +46,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     public Optional<DepartmentDto> update(DepartmentDto departmentDto, Long id) {
         DepartmentEntity departmentEntity = null;
         if (departmentDao.existsById(id)) {
-            //departmentDto.setId(id);
+            departmentDto.setId(id);
             departmentEntity = departmentDao.save(departmentMapper.toEntity(departmentDto));
         }
         return Optional.ofNullable(departmentMapper.toDto(departmentEntity));
@@ -108,11 +108,9 @@ public class DepartmentServiceImpl implements DepartmentService {
                     departmentDao
                             .findById(departmentId)
                             .map(dep -> {
-                                dep.getUsers().remove(usr);
-                                //List<UserEntity> users = dep.getUsers();
-                                //users.remove(usr);
-                                //dep.setUsers(users);
-                                //usr.setDepartment(dep);
+                                List<UserEntity> users = dep.getUsers();
+                                users.remove(usr);
+                                dep.setUsers(users);
                                 return null;
                             });
                     return null;

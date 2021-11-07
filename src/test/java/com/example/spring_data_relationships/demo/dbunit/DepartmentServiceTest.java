@@ -3,7 +3,6 @@ package com.example.spring_data_relationships.demo.dbunit;
 import com.example.spring_data_relationships.configuration.SpringConfig;
 import com.example.spring_data_relationships.dto.DepartmentDto;
 import com.example.spring_data_relationships.dto.DepartmentDtoWithUserDto;
-import com.example.spring_data_relationships.dto.UserDto;
 import com.example.spring_data_relationships.service.DepartmentService;
 import com.example.spring_data_relationships.service.UserService;
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
@@ -12,17 +11,11 @@ import com.github.springtestdbunit.annotation.DatabaseTearDown;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.mockito.internal.matchers.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @SpringJUnitConfig(SpringConfig.class)
 @TestPropertySource(locations = {
@@ -74,23 +67,23 @@ public class DepartmentServiceTest {
                 .name(expectedName)
                 .build();
 
-        DepartmentDto resultDepartment = departmentService.update(testDepartment, expectedId).get();
+        DepartmentDto updatedDepartment = departmentService.update(testDepartment, expectedId)
+                .orElseThrow(RuntimeException::new);
+        DepartmentDto actualDepartment = departmentService.get(expectedId).orElseThrow(RuntimeException::new);
 
-        Assertions.assertEquals(expectedName, resultDepartment.getName());
-        Assertions.assertEquals(expectedId, resultDepartment.getId());
+        Assertions.assertEquals(expectedName, actualDepartment.getName());
+        Assertions.assertEquals(expectedId, actualDepartment.getId());
     }
 
     @SneakyThrows
     @DatabaseSetup("classpath:dbunit/data.xml")
     @Test
-    public void shouldVerifyRemoveMethodCallWhenDelete() {
+    public void shouldVerifyRemoveDepartmentWhenDelete() {
         Long expectedId = 1L;
 
-        DepartmentService spyDepartmentService = Mockito.spy(departmentService);
-        spyDepartmentService.delete(expectedId);
-        Boolean exist = spyDepartmentService.existsById(expectedId);
+        departmentService.delete(expectedId);
+        Boolean exist = departmentService.existsById(expectedId);
 
-        //verify(spyDepartmentService, times(1)).delete(expectedId);
         Assertions.assertEquals(false, exist);
     }
 
