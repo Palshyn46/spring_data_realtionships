@@ -1,9 +1,9 @@
 package com.example.spring_data_relationships.entity;
 
 import lombok.*;
-import org.apache.commons.lang3.builder.HashCodeExclude;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -34,6 +34,12 @@ public class UserEntity {
     )*/
     private DepartmentEntity department;
 
+
+//    @EqualsAndHashCode.Exclude
+//    @ToString.Exclude
+//    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "users")
+
+    @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @ManyToMany(
             fetch = FetchType.LAZY,
@@ -44,5 +50,5 @@ public class UserEntity {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "group_id")
     )
-    private Set<GroupEntity> groups;
+    private Set<GroupEntity> groups = new HashSet<>();
 }

@@ -1,7 +1,6 @@
 package com.example.spring_data_relationships.controller;
 
 import com.example.spring_data_relationships.exceptions.ApiError;
-import com.example.spring_data_relationships.exceptions.BadRequestException;
 import com.example.spring_data_relationships.exceptions.MyEntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

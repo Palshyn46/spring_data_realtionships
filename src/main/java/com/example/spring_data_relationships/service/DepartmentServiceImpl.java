@@ -4,7 +4,6 @@ import com.example.spring_data_relationships.dao.DepartmentDao;
 import com.example.spring_data_relationships.dao.UserDao;
 import com.example.spring_data_relationships.dto.DepartmentDto;
 import com.example.spring_data_relationships.dto.DepartmentDtoWithUserDto;
-import com.example.spring_data_relationships.dto.UserDto;
 import com.example.spring_data_relationships.entity.DepartmentEntity;
 import com.example.spring_data_relationships.entity.UserEntity;
 import com.example.spring_data_relationships.mappers.DepartmentMapper;
@@ -73,6 +72,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         return department.map(departmentMapper::toDepartmentDtoWithUserDto).orElse(null);
     }
 
+    @Transactional
     @Override
     public DepartmentDtoWithUserDto saveDepartmentDtoWithUserDto(DepartmentDtoWithUserDto departmentDtoWithUserDto) {
         DepartmentEntity departmentEntity = departmentMapper.toDepartmentEntity(departmentDtoWithUserDto);
@@ -111,6 +111,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                                 List<UserEntity> users = dep.getUsers();
                                 users.remove(usr);
                                 dep.setUsers(users);
+                                // usr.setDepartment ?
                                 return null;
                             });
                     return null;

@@ -19,5 +19,7 @@ public interface GroupService {
 
     GroupDtoWithUsers findGroupDtoWithUsers(Long id);
 
-    void deleteUserFromGroup(Long expectedGroupId, Long expectedUserId);
+    void addUserToGroup(Long userId, Long groupId);
+
+    void deleteUserFromGroup(Long userId, Long groupId);
 }

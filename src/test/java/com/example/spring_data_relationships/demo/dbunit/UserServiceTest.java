@@ -3,6 +3,7 @@ package com.example.spring_data_relationships.demo.dbunit;
 import com.example.spring_data_relationships.configuration.SpringConfig;
 import com.example.spring_data_relationships.dto.UserDto;
 import com.example.spring_data_relationships.dto.UserDtoWithDepartment;
+import com.example.spring_data_relationships.dto.UserDtoWithGroups;
 import com.example.spring_data_relationships.service.DepartmentService;
 import com.example.spring_data_relationships.service.UserService;
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
@@ -106,5 +107,38 @@ public class UserServiceTest {
         UserDtoWithDepartment resultUser = userService.findUserDtoWithDepartment(expectedUserId);
 
         Assertions.assertNull(resultUser.getDepartment());
+    }
+
+    @SneakyThrows
+    @DatabaseSetup("classpath:dbunit/data.xml")
+    @Test
+    public void shouldAddGroupToUser() {
+        Long groupId = 1L;
+        Long userId = 1L;
+
+        userService.addGroupToUser(groupId, userId);
+        UserDtoWithGroups user = userService
+                .findUserDtoWithGroups(userId);
+
+        Assertions.assertEquals(1, user.getGroups().size());
+    }
+
+    @SneakyThrows
+    @DatabaseSetup("classpath:dbunit/data.xml")
+    @Test
+    public void shouldDeleteGroupFromUser() {
+        Long groupId = 1L;
+        Long userId = 1L;
+
+        userService.addGroupToUser(groupId, userId);
+        UserDtoWithGroups userBeforeDelete = userService
+                .findUserDtoWithGroups(userId);
+
+        userService.deleteGroupFromUser(groupId, userId);
+        UserDtoWithGroups userAfterDelete = userService
+                .findUserDtoWithGroups(groupId);
+
+        Assertions.assertEquals(1, userBeforeDelete.getGroups().size());
+        Assertions.assertEquals(0, userAfterDelete.getGroups().size());
     }
 }

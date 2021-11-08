@@ -1,19 +1,22 @@
 package com.example.spring_data_relationships.service;
 
 import com.example.spring_data_relationships.dao.GroupDao;
+import com.example.spring_data_relationships.dao.UserDao;
 import com.example.spring_data_relationships.dto.GroupDto;
 import com.example.spring_data_relationships.dto.GroupDtoWithUsers;
 import com.example.spring_data_relationships.entity.GroupEntity;
+import com.example.spring_data_relationships.entity.UserEntity;
 import com.example.spring_data_relationships.mappers.GroupMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.Set;
 
 public class GroupServiceImpl implements GroupService {
     GroupDao groupDao;
     GroupMapper groupMapper;
-    UserService userService;
+    UserDao userDao;
 
     public GroupServiceImpl(GroupDao groupDao, GroupMapper groupMapper) {
         this.groupDao = groupDao;
@@ -21,7 +24,8 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Autowired
-    public void setUserService(UserService userService) {
+    public void setUserService(UserDao userDao) {
+        this.userDao = userDao;
     }
 
     @Transactional
@@ -64,20 +68,48 @@ public class GroupServiceImpl implements GroupService {
         return groupDao.existsById(id);
     }
 
+    @Transactional
     @Override
     public GroupDtoWithUsers findGroupDtoWithUsers(Long id) {
         Optional<GroupEntity> group = groupDao.findById(id);
-        //return group.map(groupMapper::toGroupDtoWithUsers).orElse(null);
-        return null;
+        return group.map(groupMapper::toGroupDtoWithUsers).orElse(null);
     }
 
+    @Transactional
     @Override
-    public void deleteUserFromGroup(Long groupId, Long userId) {
-        groupDao
-                .findById(groupId)
+    public void addUserToGroup(Long userId, Long groupId) {
+        userDao
+                .findById(userId)
                 .map(usr -> {
-                    usr.setUsers(null);
-                    groupDao.save(usr);
+                    groupDao
+                            .findById(groupId)
+                            .map(grp -> {
+                                Set<UserEntity> users = grp.getUsers();
+                                users.add(usr);
+                                grp.setUsers(users);
+                                groupDao.save(grp);
+
+                                // usr.setGroup?
+                                return null;
+                            });
+                    return null;
+                });
+    }
+
+    @Transactional
+    @Override
+    public void deleteUserFromGroup(Long userId, Long groupId) {
+        userDao
+                .findById(userId)
+                .map(usr -> {
+                    groupDao
+                            .findById(groupId)
+                            .map(grp -> {
+                                Set<UserEntity> users = grp.getUsers();
+                                users.remove(usr);
+                                grp.setUsers(users);
+                                return null;
+                            });
                     return null;
                 });
     }

@@ -1,10 +1,8 @@
 package com.example.spring_data_relationships.mappers;
 
-import com.example.spring_data_relationships.dto.DepartmentDto;
-import com.example.spring_data_relationships.dto.DepartmentDtoWithUserDto;
-import com.example.spring_data_relationships.dto.UserDto;
-import com.example.spring_data_relationships.dto.UserDtoWithDepartment;
+import com.example.spring_data_relationships.dto.*;
 import com.example.spring_data_relationships.entity.DepartmentEntity;
+import com.example.spring_data_relationships.entity.GroupEntity;
 import com.example.spring_data_relationships.entity.UserEntity;
 import org.mapstruct.Mapper;
 
@@ -36,4 +34,22 @@ public interface UserMapper {
     DepartmentEntity toEntity(DepartmentDto department);
 
     Iterable<DepartmentEntity> dtosToDepartmentEntities(Iterable<DepartmentDto> departments);
+
+
+    UserDtoWithGroups toUserDtoWithGroups(UserEntity userEntity);
+
+    Iterable<UserDtoWithGroups> userEntitiesToUserDtosWithGroups(Iterable<UserEntity> users);
+
+    UserEntity toUserEntity(UserDtoWithGroups user);
+
+    Iterable<UserEntity> userDtosWithGroupsToUserEntities(Iterable<UserDtoWithGroups> users);
+
+
+    GroupDto toDto(GroupEntity group);
+
+    Iterable<GroupDto> groupsToGroupDtos(Iterable<GroupEntity> groups);
+
+    GroupEntity toEntity(GroupDto group);
+
+    Iterable<GroupEntity> dtosToGroupEntities(Iterable<GroupDto> groups);
 }

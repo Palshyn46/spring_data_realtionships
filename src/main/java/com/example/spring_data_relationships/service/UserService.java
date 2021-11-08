@@ -2,6 +2,7 @@ package com.example.spring_data_relationships.service;
 
 import com.example.spring_data_relationships.dto.UserDto;
 import com.example.spring_data_relationships.dto.UserDtoWithDepartment;
+import com.example.spring_data_relationships.dto.UserDtoWithGroups;
 
 import java.util.Optional;
 
@@ -19,5 +20,11 @@ public interface UserService {
 
     UserDtoWithDepartment findUserDtoWithDepartment(Long id);
 
+    UserDtoWithGroups findUserDtoWithGroups(Long id);
+
     void deleteDepartmentFromUser(Long expectedUserId, Long expectedDepartmentId);
+
+    void addGroupToUser(Long groupId, Long userId);
+
+    void deleteGroupFromUser(Long groupId, Long userId);
 }
