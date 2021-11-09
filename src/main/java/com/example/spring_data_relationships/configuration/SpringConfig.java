@@ -7,6 +7,7 @@ import com.example.spring_data_relationships.mappers.DepartmentMapper;
 import com.example.spring_data_relationships.mappers.GroupMapper;
 import com.example.spring_data_relationships.mappers.UserMapper;
 import com.example.spring_data_relationships.service.*;
+import com.rabbitmq.client.ConnectionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -33,4 +34,6 @@ public class SpringConfig {
                                      GroupMapper groupMapper) {
         return new GroupServiceImpl(groupDao, groupMapper);
     }
+
+
 }
