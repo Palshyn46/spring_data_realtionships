@@ -29,8 +29,6 @@ public class RabbitMqListener {
     DepartmentService departmentService;
     ObjectMapper objectMapper = new ObjectMapper();
 
-    Logger logger = LoggerFactory.getLogger(RabbitMqListener.class);
-
     @SneakyThrows
     @RabbitListener(queues = "addUser")
     public void processAddUserQueue(String message) {

@@ -15,8 +15,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfiguration {
 
-    Logger logger = LoggerFactory.getLogger(RabbitConfiguration.class);
-
     @Bean
     public ConnectionFactory connectionFactory() {
         return new CachingConnectionFactory("localhost");
@@ -31,11 +29,6 @@ public class RabbitConfiguration {
     public RabbitTemplate rabbitTemplate() {
         return new RabbitTemplate(connectionFactory());
     }
-
-//    @Bean
-//    public Queue myQueue() {
-//        return new Queue("myQueue");
-//    }
 
     @Bean
     public Queue addUser() {
@@ -52,25 +45,10 @@ public class RabbitConfiguration {
         return new Queue("addUserToDepartment");
     }
 
-//    @Bean
-//    public FanoutExchange fanoutExchange() {
-//        return new FanoutExchange("common-exchange");
-//    }
-
     @Bean
     public DirectExchange directExchange() {
         return new DirectExchange("direct-exchange");
     }
-
-//    @Bean
-//    public Binding binding1() {
-//        return BindingBuilder.bind(myQueue1()).to(fanoutExchange());
-//    }
-//
-//    @Bean
-//    public Binding binding2() {
-//        return BindingBuilder.bind(myQueue2()).to(fanoutExchange());
-//    }
 
     @Bean
     public Binding binding1() {
@@ -92,13 +70,4 @@ public class RabbitConfiguration {
                 .to(directExchange())
                 .with("addUserToDepartment");
     }
-
-//    @Bean
-//    public SimpleMessageListenerContainer messageListenerContainer() {
-//        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-//        container.setConnectionFactory(connectionFactory());
-//        container.setQueueNames("myQueue");
-//        container.setMessageListener(message -> logger.info("Received from myQueue : " + new String(message.getBody())));
-//        return container;
-//    }
 }
