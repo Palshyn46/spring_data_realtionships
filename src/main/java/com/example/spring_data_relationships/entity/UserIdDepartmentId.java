@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 public class UserIdDepartmentId {
 
-    long userId;
-    long departmentId;
+    Long idValueU;
+    Long idValueD;
 }
