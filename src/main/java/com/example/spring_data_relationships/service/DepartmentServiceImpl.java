@@ -74,6 +74,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Transactional
     @Override
+    //@SendToMq(queue = "name") //at the end
     public DepartmentDtoWithUserDto saveDepartmentDtoWithUserDto(DepartmentDtoWithUserDto departmentDtoWithUserDto) {
         DepartmentEntity departmentEntity = departmentMapper.toDepartmentEntity(departmentDtoWithUserDto);
         departmentEntity = departmentDao.save(departmentEntity);
