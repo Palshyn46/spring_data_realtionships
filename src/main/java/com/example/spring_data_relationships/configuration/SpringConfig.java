@@ -1,13 +1,14 @@
 package com.example.spring_data_relationships.configuration;
 
+import com.example.spring_data_relationships.dao.CreateUserInformationDao;
 import com.example.spring_data_relationships.dao.DepartmentDao;
 import com.example.spring_data_relationships.dao.GroupDao;
 import com.example.spring_data_relationships.dao.UserDao;
+import com.example.spring_data_relationships.mappers.CreateUserInformationMapper;
 import com.example.spring_data_relationships.mappers.DepartmentMapper;
 import com.example.spring_data_relationships.mappers.GroupMapper;
 import com.example.spring_data_relationships.mappers.UserMapper;
 import com.example.spring_data_relationships.service.*;
-import com.rabbitmq.client.ConnectionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ComponentScan("com.example.spring_data_relationships")
 public class SpringConfig {
+
+    @Bean
+    public CreateUserInformationService createUserInformationService(CreateUserInformationDao createUserInformationDao,
+                                                                     CreateUserInformationMapper createUserInformationMapper) {
+        return new CreateUserInformationServiceImpl(createUserInformationDao, createUserInformationMapper);
+    }
 
     @Bean
     public DepartmentService departmentService(DepartmentDao departmentDao,

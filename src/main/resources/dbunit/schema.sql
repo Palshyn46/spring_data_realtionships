@@ -23,3 +23,13 @@ CREATE TABLE IF NOT EXISTS users_groups_table
     user_id BIGINT,
     group_id BIGINT
     );
+
+CREATE TABLE IF NOT EXISTS create_user_information
+(
+    id BIGSERIAL PRIMARY KEY,
+    enterTime varchar(255),
+    ip varchar(255),
+    body varchar(255),
+    exitTime varchar(255),
+    response varchar(255)
+    );

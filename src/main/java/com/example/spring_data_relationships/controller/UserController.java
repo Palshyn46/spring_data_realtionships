@@ -21,9 +21,8 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-//    @Action(/*logs enter time, ip, exit time, body, response into db */) AOP
     @Action
-    public UserDto create(@RequestBody UserDto user, HttpServletRequest request) {
+    public UserDto create(@RequestBody UserDto user) {
         return userService.create(user);
     }
 

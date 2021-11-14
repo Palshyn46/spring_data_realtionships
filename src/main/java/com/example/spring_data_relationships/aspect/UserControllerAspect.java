@@ -1,15 +1,16 @@
 package com.example.spring_data_relationships.aspect;
 
-
+import com.example.spring_data_relationships.dto.CreateUserInformationDto;
 import com.example.spring_data_relationships.dto.UserDto;
-import liquibase.pro.packaged.A;
+import com.example.spring_data_relationships.service.CreateUserInformationService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.connector.RequestFacade;
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -20,21 +21,30 @@ import java.time.format.DateTimeFormatter;
 @Component
 public class UserControllerAspect {
 
-    @Pointcut(value = "@annotation(com.example.spring_data_relationships.annotation.Action) && args(user, request)", argNames = "user,request")
-    public void controllerMethodCall(UserDto user, HttpServletRequest request) {
-    }
+    @Autowired
+    CreateUserInformationService createUserInformationService;
+    CreateUserInformationDto createUserInformationDto;
 
-    @Before(value = "controllerMethodCall(user, request)", argNames = "user,request")
-    public void beforeMethodCall(UserDto user, HttpServletRequest request) {
+    @Before(value = "@annotation(com.example.spring_data_relationships.annotation.Action) && args(user)", argNames = "user")
+    public void beforeMethodCall(UserDto user) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
-        log.info("Enter time: " + dtf.format(now));
-        log.info("User: " + user.toString());
-        log.info("ip address: " + request.getRemoteAddr());
+        HttpServletRequest httpServletRequest =
+                ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+
+        createUserInformationDto = new CreateUserInformationDto(
+                dtf.format(now),
+                httpServletRequest.getRemoteAddr(),
+                user.toString());
     }
 
     @AfterReturning(value = "@annotation(com.example.spring_data_relationships.annotation.Action)", returning = "result")
     public void afterReturningCallAt(Object result) {
-            log.info("Response: " + result.toString());
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+
+        createUserInformationDto.setExitTime(dtf.format(now));
+        createUserInformationDto.setResponse(result.toString());
+        createUserInformationService.save(createUserInformationDto);
     }
 }

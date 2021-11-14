@@ -11,5 +11,6 @@
     <include file="v-1.0/10-changeset-departments-table.xml" relativeToChangelogFile="true"/>
     <include file="v-1.0/20-changeset-groups-table.xml" relativeToChangelogFile="true"/>
     <include file="v-1.0/30-changeset-users-groups-table.xml" relativeToChangelogFile="true"/>
+    <include file="v-1.0/40-changeset-create-user-information.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
