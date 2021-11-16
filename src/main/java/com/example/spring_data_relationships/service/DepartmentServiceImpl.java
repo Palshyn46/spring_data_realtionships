@@ -1,5 +1,7 @@
 package com.example.spring_data_relationships.service;
 
+import com.example.spring_data_relationships.annotation.BeanPostProcessorAnnotationClass;
+import com.example.spring_data_relationships.annotation.BeanPostProcessorAnnotationMethod;
 import com.example.spring_data_relationships.dao.DepartmentDao;
 import com.example.spring_data_relationships.dao.UserDao;
 import com.example.spring_data_relationships.dto.DepartmentDto;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@BeanPostProcessorAnnotationClass
 public class DepartmentServiceImpl implements DepartmentService {
     DepartmentDao departmentDao;
     DepartmentMapper departmentMapper;
@@ -27,6 +30,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Transactional
     @Override
+    @BeanPostProcessorAnnotationMethod
     public Optional<DepartmentDto> get(Long id) {
         Optional<DepartmentEntity> department = departmentDao.findById(id);
         return department.map(departmentMapper::toDto);
@@ -75,6 +79,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Transactional
     @Override
     //@SendToMq(queue = "name") //at the end
+
     public DepartmentDtoWithUserDto saveDepartmentDtoWithUserDto(DepartmentDtoWithUserDto departmentDtoWithUserDto) {
         DepartmentEntity departmentEntity = departmentMapper.toDepartmentEntity(departmentDtoWithUserDto);
         departmentEntity = departmentDao.save(departmentEntity);
