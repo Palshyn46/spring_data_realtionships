@@ -46,6 +46,11 @@ public class RabbitConfiguration {
     }
 
     @Bean
+    public Queue beanPostProcessorQueue() {
+        return new Queue("beanPostProcessorQueue");
+    }
+
+    @Bean
     public DirectExchange directExchange() {
         return new DirectExchange("direct-exchange");
     }
@@ -69,5 +74,12 @@ public class RabbitConfiguration {
         return BindingBuilder.bind(addUserToDepartment())
                 .to(directExchange())
                 .with("addUserToDepartment");
+    }
+
+    @Bean
+    public Binding binding4() {
+        return BindingBuilder.bind(beanPostProcessorQueue())
+                .to(directExchange())
+                .with("beanPostProcessorQueue");
     }
 }

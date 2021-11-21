@@ -1,9 +1,11 @@
 package com.example.spring_data_relationships.controller;
 
 import com.example.spring_data_relationships.dto.GroupDto;
+import com.example.spring_data_relationships.dto.GroupDtoWithUsers;
 import com.example.spring_data_relationships.exceptions.MyEntityNotFoundException;
 import com.example.spring_data_relationships.service.GroupService;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

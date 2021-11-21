@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-@BeanPostProcessorAnnotationClass
 public class DepartmentServiceImpl implements DepartmentService {
     DepartmentDao departmentDao;
     DepartmentMapper departmentMapper;
@@ -78,8 +77,6 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Transactional
     @Override
-    //@SendToMq(queue = "name") //at the end
-
     public DepartmentDtoWithUserDto saveDepartmentDtoWithUserDto(DepartmentDtoWithUserDto departmentDtoWithUserDto) {
         DepartmentEntity departmentEntity = departmentMapper.toDepartmentEntity(departmentDtoWithUserDto);
         departmentEntity = departmentDao.save(departmentEntity);
